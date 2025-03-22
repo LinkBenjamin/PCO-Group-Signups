@@ -1,0 +1,2 @@
+module Kiosk::HomeHelper
+end

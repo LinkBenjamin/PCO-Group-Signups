@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    get "pcoconnection/index"
+    get "dashboard/index"
+  end
+  namespace :kiosk do
+    get "home/index"
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -11,4 +18,23 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  Rails.application.routes.draw do
+  namespace :admin do
+    get "pcoconnection/index"
+    get "dashboard/index"
+  end
+  namespace :kiosk do
+    get "home/index"
+  end
+    namespace :kiosk do
+      root to: "home#index"
+      # Add other kiosk-related routes here
+    end
+
+    namespace :admin do
+      root to: "dashboard#index"
+      get "pcoconnection", to: "pcoconnection#index"
+      # Add other admin-related routes here
+    end
+  end
 end
