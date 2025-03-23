@@ -19,13 +19,16 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   Rails.application.routes.draw do
-  namespace :admin do
-    get "pcoconnection/index"
-    get "dashboard/index"
-  end
-  namespace :kiosk do
-    get "home/index"
-  end
+    namespace :pco do
+      get "people", to: "pco#people"
+    end
+    namespace :admin do
+      get "pcoconnection/index"
+      get "dashboard/index"
+    end
+    namespace :kiosk do
+      get "home/index"
+    end
     namespace :kiosk do
       root to: "home#index"
       # Add other kiosk-related routes here
