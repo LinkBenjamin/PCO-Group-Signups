@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
   # PCO namespace
   namespace :pco do
-    get "people", to: "pco#people"
+    get "people", to: "pco#findperson"
   end
 
   # Health check
