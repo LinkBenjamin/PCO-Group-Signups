@@ -13,6 +13,13 @@ module Pco
       render json: response
     end
 
+    def findperson
+      name_or_email="link.ben"
+      uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_name_or_email]=#{name_or_email}")
+      response = fetch_pco_data(uri)
+      render json: response
+    end
+
     private
 
     def fetch_pco_data(uri)
