@@ -1,43 +1,22 @@
 Rails.application.routes.draw do
+  # Admin namespace
   namespace :admin do
-    get "pcoconnection/index"
+    root to: "dashboard#index"
+    get "pcoconnection", to: "pcoconnection#index"
     get "dashboard/index"
   end
+
+  # Kiosk namespace
   namespace :kiosk do
+    root to: "home#index"
     get "home/index"
   end
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
-  Rails.application.routes.draw do
-    namespace :pco do
-      get "people", to: "pco#people"
-    end
-    namespace :admin do
-      get "pcoconnection/index"
-      get "dashboard/index"
-    end
-    namespace :kiosk do
-      get "home/index"
-    end
-    namespace :kiosk do
-      root to: "home#index"
-      # Add other kiosk-related routes here
-    end
-
-    namespace :admin do
-      root to: "dashboard#index"
-      get "pcoconnection", to: "pcoconnection#index"
-      # Add other admin-related routes here
-    end
+  # PCO namespace
+  namespace :pco do
+    get "people", to: "pco#people"
   end
+
+  # Health check
+  get "up" => "rails/health#show", as: :rails_health_check
 end
