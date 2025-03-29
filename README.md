@@ -24,6 +24,11 @@ This was built with 3.4.2
 
 ## Running the application
 
+First, install dependencies.  From the project root:
+```bash
+bundle install --gemfile Gemfile
+```
+
 ```bash
 rails server
 ```
