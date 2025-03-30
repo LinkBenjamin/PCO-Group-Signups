@@ -6,14 +6,27 @@ module Pco
   class PcoController < ApplicationController
     PCO_BASE_URL = "https://api.planningcenteronline.com"
 
-    def people
-      uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people")
+    # This endpoint accepts one parameter, called "search_string".
+    # If the search_string is 10 characters and all numeric, it's searched against the phone number field.
+    # If the search_string is anything else, it's searched against the name or email address.
+    def findperson
+      search_string = params[:search_string] # Retrieves the parameter 'search_string'
+
+      if search_string.length == 10 && is_number(search_string)
+        uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_phone_number]=#{search_string}")
+      else
+        uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_name_or_email]=#{search_string}")
+      end
 
       response = fetch_pco_data(uri)
       render json: response
     end
 
     private
+
+    def is_number(val)
+      true if Float(val) rescue false
+    end
 
     def fetch_pco_data(uri)
       app_id = Rails.application.credentials.dig(:pco, :app_id)
