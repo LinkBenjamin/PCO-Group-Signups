@@ -24,12 +24,17 @@ module Pco
     end
 
     # Find a group in PCO based on our search string.
-    # This endpoint accepts one parameter, called "search_string".
+    # This endpoint accepts one optional parameter, called "search_string".
     # The search_string is used to filter groups by name.
+    # If search_string isn't provided, we use * to connote that we want to return ALL groups.
     def findgroup
-      search_string = params[:search_string] # Retrieves the parameter 'search_string'
+      search_string = params[:search_string].presence || "*" # Retrieves the parameter 'search_string'
 
-      uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups?where[name]=#{search_string}")
+      if search_string == "*"
+        uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups")
+      else
+        uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups?where[name]=#{search_string}")
+      end
 
       response = fetch_pco_data(uri)
       render json: response
