@@ -6,6 +6,7 @@ module Pco
   class PcoController < ApplicationController
     PCO_BASE_URL = "https://api.planningcenteronline.com"
 
+    # Find a person in PCO based on our search string.
     # This endpoint accepts one parameter, called "search_string".
     # If the search_string is 10 characters and all numeric, it's searched against the phone number field.
     # If the search_string is anything else, it's searched against the name or email address.
@@ -17,6 +18,18 @@ module Pco
       else
         uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_name_or_email]=#{search_string}")
       end
+
+      response = fetch_pco_data(uri)
+      render json: response
+    end
+
+    # Find a group in PCO based on our search string.
+    # This endpoint accepts one parameter, called "search_string".
+    # The search_string is used to filter groups by name.
+    def findgroup
+      search_string = params[:search_string] # Retrieves the parameter 'search_string'
+
+      uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups?where[name]=#{search_string}")
 
       response = fetch_pco_data(uri)
       render json: response
