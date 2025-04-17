@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kiosk</title>
+  <title>Group Signup Kiosk</title>
   <%# <%= stylesheet_link_tag 'kiosk' %>
   <%# <%= javascript_pack_tag 'kiosk' %>
 </head>
 <body>
-  <h1>Kiosk Page</h1>
-  <p><%= @message %></p>
+  <div>
+    <h1> Group Signup Kiosk Page </h1>
+    <label for="group-select">Select Group:</label>
+    <select id="group-select">
+      <option>Loading Groups...</option>
+    </select>
+
+    <br><br>
+
+    <label for="people-select">Select Person:</label>
+    <select id="people-select">
+      <option>Loading people...</option>
+    </select>
+  
+  </div>
+  <script>
+    let groups = [];
+    let people = [];
+
+    document.addEventListener("DOMContentLoaded",() => {
+      fetch("/pco/groups")
+        .then(response => response.json())
+        .then(json => {
+          groups = json.data;
+          const groupSelect = document.getElementById("group-select");
+          groupSelect.innerHTML = "";
+
+          groups.forEach(group => {
+            const name = group.attributes?.name || "{no name}";
+            const option = document.createElement("option");
+            option.value = group.id;
+            option.textContent = name;
+            groupSelect.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load groups: ", err);
+          document.getElementById("group-select").innerHTML = "<option>Failed to load groups</option>";
+        });
+      
+      fetch("/pco/people")
+        .then(response => response.json())
+        .then(json => {
+          people = json.data;
+          const peopleSelect = document.getElementById("people-select");
+          peopleSelect.innerHTML = ""; // Clear existing options
+
+          people.forEach(person => {
+            const name = person.attributes?.name || "(no name)";
+            const option = document.createElement("option");
+            option.value = person.id;
+            option.textContent = name;
+            peopleSelect.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load people:",err);
+          document.getElementById("people-container").innerText = "Failed to load people.";
+        });
+    });
+  </script>
 </body>
 </html>

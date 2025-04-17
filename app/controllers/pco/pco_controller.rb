@@ -13,11 +13,7 @@ module Pco
     def findperson
       search_string = params[:search_string] # Retrieves the parameter 'search_string'
 
-      if search_string.length == 10 && is_number(search_string)
-        uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_phone_number]=#{search_string}")
-      else
-        uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_name_or_email]=#{search_string}")
-      end
+      uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[search_name_or_email_or_phone_number]=#{search_string}")
 
       response = fetch_pco_data(uri)
       render json: response
