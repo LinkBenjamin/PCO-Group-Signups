@@ -36,11 +36,29 @@ module Pco
       render json: response
     end
 
-    private
+    # Given a group ID, return the membership of the group.
+    def  get_group_members
+      groupid = params[:groupid].presence || "*"
 
-    def is_number(val)
-      true if Float(val) rescue false
+      if groupid == "*"
+        response = "ERROR - bad (or no) group id passed to get_group_members"
+      else
+        uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups/#{groupid}/memberships")
+        response = fetch_pco_data(uri)
+      end
+      render json: response
     end
+
+    # Given a person ID, return the person's object
+    def get_person_by_id
+      personid = params[:personid]
+
+      uri = URI("#{PcoController::PCO_BASE_URL}/people/v2/people?where[id]=#{personid}")
+      response = fetch_pco_data(uri)
+      render json: response
+    end
+
+    private
 
     def fetch_pco_data(uri)
       app_id = Rails.application.credentials.dig(:pco, :app_id)

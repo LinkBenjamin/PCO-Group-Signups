@@ -14,6 +14,17 @@
     </select>
 
     <br><br>
+    <table id="members-table" border="1">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <!-- Add other columns if needed -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Select a group to see members.</td></tr>
+      </tbody>
+    </table>
 
     <label for="people-select">Select Person:</label>
     <select id="people-select">
@@ -23,6 +34,7 @@
   </div>
   <script>
     let groups = [];
+    let groupMembers = [];
     let people = [];
 
     document.addEventListener("DOMContentLoaded",() => {
@@ -39,6 +51,51 @@
             option.value = group.id;
             option.textContent = name;
             groupSelect.appendChild(option);
+          });
+
+          document.getElementById("group-select").addEventListener("change", (e) => {
+            const groupId = e.target.value;
+
+            if (!groupId) return;
+
+            fetch(`/pco/groupmembers?groupid=${groupId}`)
+              .then(response => response.json())
+              .then(json => {
+                const members = json.data;
+                const tableBody = document.querySelector("#members-table tbody");
+
+                if (!members.length) {
+                  tableBody.innerHTML = "<tr><td>No members in this group.</td></tr>";
+                  return;
+                }
+
+                tableBody.innerHTML = members.map(member => {
+                  const p = member.relationships.person.data.id || "(no name)";
+                  if (p != "(no name)"){
+                    fetch(`/pco/person?personid=${p}`)
+                      .then(response => response.json())
+                      .then(json => {
+                        const name = json.data[0].attributes?.name || "(No Name)";
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td>${name}</td>`;
+                        tableBody.appendChild(row);
+                      })
+                      .catch(err => {
+                        console.error(`Failed to fetch person ${personId}:`, err);
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td>(failed to load person ${personId})</td>`;
+                        tableBody.appendChild(row);
+                      });
+                  }
+                  return ``;
+                }).join("");
+              })
+              .catch(err => {
+                console.error("Failed to load group members:", err);
+                document.querySelector("#members-table tbody").innerHTML =
+                  "<tr><td>Failed to load members.</td></tr>";
+              });
           });
         })
         .catch(err => {
