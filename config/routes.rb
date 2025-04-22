@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   namespace :pco do
     get "people", to: "pco#findperson"
     get "groups", to: "pco#findgroup"
+    get "groupmembers", to: "pco#get_group_members"
+    get "person", to: "pco#get_person_by_id"
   end
 
   # Health check
