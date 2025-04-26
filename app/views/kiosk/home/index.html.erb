@@ -78,7 +78,7 @@
                         const name = json.data[0].attributes?.name || "(No Name)";
 
                         const row = document.createElement("tr");
-                        row.innerHTML = `<td>${name}</td>`;
+                        row.innerHTML = `<td>${name}</td><td>Remove</td>`;
                         tableBody.appendChild(row);
                       })
                       .catch(err => {
