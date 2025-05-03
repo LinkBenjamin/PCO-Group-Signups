@@ -58,6 +58,35 @@ module Pco
       render json: response
     end
 
+    # Given a person ID and a group ID, create a group membership record to add them
+    def add_membership
+      personid = params[:personid]
+      groupid = params[:groupid]
+
+      uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups/#{groupid}/memberships?include=#{personid}")
+
+      # Create the request
+      request = Net::HTTP::Post.new(uri)
+
+      # Make the request
+      response = Net::HTTP.start(url.host, url.port, use_ssl: true) do |http|
+        http.request(request)
+    end
+
+    # Process the response
+    if response.is_a?(Net::HTTPSuccess)
+      # The request was successful, let's parse the JSON response
+      response_data = JSON.parse(response.body)
+      # Process the response data as needed, e.g., render or redirect
+      render json: response_data, status: :ok
+    else
+      # Handle failure (e.g., log the error and return a message)
+      render json: { error: "Failed to create membership", details: response.body }, status: :unprocessable_entity
+    end
+    end
+
+    # Given a group ID and a person ID, remove any group membership records with these
+
     private
 
     def fetch_pco_data(uri)
