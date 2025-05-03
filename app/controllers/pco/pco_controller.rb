@@ -2,6 +2,7 @@ module Pco
   require "net/http"
   require "uri"
   require "json"
+  require "base64"
 
   class PcoController < ApplicationController
     PCO_BASE_URL = "https://api.planningcenteronline.com"
@@ -58,7 +59,52 @@ module Pco
       render json: response
     end
 
+    # Given a person ID and a group ID, create a group membership record to add them
+    def add_membership
+      group_id = params[:group_id]
+      person_id = params[:person_id]
+
+      response = post_membership_to_planning_center(group_id, person_id)
+
+      if response.code.to_i == 201
+        render json: { message: "Member added successfully" }, status: :created
+      else
+        render json: { error: response.body }, status: :unprocessable_entity
+      end
+    end
+
+    # Given a group ID and a person ID, remove any group membership records with these
+
     private
+
+    def post_membership_to_planning_center(group_id, person_id)
+      uri = URI.parse("https://api.planningcenteronline.com/groups/v2/groups/#{group_id}/memberships?include=#{person_id}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      app_id = Rails.application.credentials.dig(:pco, :app_id)
+      app_secret = Rails.application.credentials.dig(:pco, :app_secret)
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request["Authorization"] = "Basic " + Base64.strict_encode64("#{app_id}:#{app_secret}")
+      request["Content-Type"] = "application/json"
+
+      request.body = {
+        data: {
+          type: "Membership",
+          relationships: {
+            person: {
+              data: {
+                type: "Person",
+                id: person_id
+              }
+            }
+          }
+        }
+      }.to_json
+
+      http.request(request)
+    end
 
     def fetch_pco_data(uri)
       app_id = Rails.application.credentials.dig(:pco, :app_id)

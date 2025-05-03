@@ -18,6 +18,8 @@ Rails.application.routes.draw do
     get "groups", to: "pco#findgroup"
     get "groupmembers", to: "pco#get_group_members"
     get "person", to: "pco#get_person_by_id"
+
+    get "add", to: "pco#add_membership"
   end
 
   # Health check

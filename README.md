@@ -36,3 +36,14 @@ If this works right you should see this in your output:
 ```
 
 This will run an application that you can reach in your browser at [https://localhost:3000](https://localhost:3000)
+
+# Interacting with PlanningCenter's API
+
+We've created the /pco controller in the app to simplify your interactions with PlanningCenter.  
+
+These routes exist:
+- `/pco/people` - Returns all the people in the database that match the `search_string` parameter... Matches may be for name, email, or phone number.
+- `/pco/groups` - Returns all the groups in the database that match the `search_string` parameter... Matches on name.
+- `/pco/groupmembers` - Returns the member list of the group provided in the `groupid` parameter.
+- `/pco/person` - Returns the person identified by the `personid` parameter.
+- `/pco/add` - Given a `groupid` and `personid`, add this person to the group.
