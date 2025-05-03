@@ -19,7 +19,7 @@ Rails.application.routes.draw do
     get "groupmembers", to: "pco#get_group_members"
     get "person", to: "pco#get_person_by_id"
 
-    post "add", to: "pco#add_membership"
+    get "add", to: "pco#add_membership"
   end
 
   # Health check

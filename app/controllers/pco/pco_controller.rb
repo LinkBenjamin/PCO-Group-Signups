@@ -2,6 +2,7 @@ module Pco
   require "net/http"
   require "uri"
   require "json"
+  require "base64"
 
   class PcoController < ApplicationController
     PCO_BASE_URL = "https://api.planningcenteronline.com"
@@ -60,34 +61,50 @@ module Pco
 
     # Given a person ID and a group ID, create a group membership record to add them
     def add_membership
-      personid = params[:personid]
-      groupid = params[:groupid]
+      group_id = params[:group_id]
+      person_id = params[:person_id]
 
-      uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups/#{groupid}/memberships?include=#{personid}")
+      response = post_membership_to_planning_center(group_id, person_id)
 
-      # Create the request
-      request = Net::HTTP::Post.new(uri)
-
-      # Make the request
-      response = Net::HTTP.start(url.host, url.port, use_ssl: true) do |http|
-        http.request(request)
-    end
-
-    # Process the response
-    if response.is_a?(Net::HTTPSuccess)
-      # The request was successful, let's parse the JSON response
-      response_data = JSON.parse(response.body)
-      # Process the response data as needed, e.g., render or redirect
-      render json: response_data, status: :ok
-    else
-      # Handle failure (e.g., log the error and return a message)
-      render json: { error: "Failed to create membership", details: response.body }, status: :unprocessable_entity
-    end
+      if response.code.to_i == 201
+        render json: { message: "Member added successfully" }, status: :created
+      else
+        render json: { error: response.body }, status: :unprocessable_entity
+      end
     end
 
     # Given a group ID and a person ID, remove any group membership records with these
 
     private
+
+    def post_membership_to_planning_center(group_id, person_id)
+      uri = URI.parse("https://api.planningcenteronline.com/groups/v2/groups/#{group_id}/memberships?include=#{person_id}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      app_id = Rails.application.credentials.dig(:pco, :app_id)
+      app_secret = Rails.application.credentials.dig(:pco, :app_secret)
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request["Authorization"] = "Basic " + Base64.strict_encode64("#{app_id}:#{app_secret}")
+      request["Content-Type"] = "application/json"
+
+      request.body = {
+        data: {
+          type: "Membership",
+          relationships: {
+            person: {
+              data: {
+                type: "Person",
+                id: person_id
+              }
+            }
+          }
+        }
+      }.to_json
+
+      http.request(request)
+    end
 
     def fetch_pco_data(uri)
       app_id = Rails.application.credentials.dig(:pco, :app_id)
