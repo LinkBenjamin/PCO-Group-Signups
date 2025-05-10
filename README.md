@@ -47,3 +47,4 @@ These routes exist:
 - `/pco/groupmembers` - Returns the member list of the group provided in the `groupid` parameter.
 - `/pco/person` - Returns the person identified by the `personid` parameter.
 - `/pco/add` - Given a `groupid` and `personid`, add this person to the group.
+- `/pco/remove` - Given `groupid` and `personid`, remove this person from the group.
