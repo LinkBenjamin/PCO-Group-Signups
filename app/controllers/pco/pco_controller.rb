@@ -74,8 +74,49 @@ module Pco
     end
 
     # Given a group ID and a person ID, remove any group membership records with these
+    def remove_membership
+      # https://api.planningcenteronline.com/groups/v2/groups/{group_id}/memberships/{id}
+      group_id = params[:group_id]
+      person_id = params[:person_id]
+
+      response = delete_member_from_planning_center(group_id, person_id)
+
+      render json: response
+    end
 
     private
+
+    def delete_member_from_planning_center(group_id, person_id)
+      # Give me all the memberships of this group
+      g_uri = URI("#{PcoController::PCO_BASE_URL}/groups/v2/groups/#{group_id}/memberships")
+      memberships = fetch_pco_data(g_uri)["data"]
+
+      # Find the membership ID that joins this person to this group
+      membership = memberships.find do |entry|
+        relationships = entry["relationships"]
+        person = relationships["person"]["data"]["id"]
+        group = relationships["group"]["data"]["id"]
+
+        person_id == person && group_id == group
+      end
+
+      if membership.nil?
+        { error: "Could not find member to delete." }
+      else
+        mem = membership["id"]
+        uri = URI.parse("https://api.planningcenteronline.com/groups/v2/groups/#{group_id}/memberships/#{mem}")
+
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        app_id = Rails.application.credentials.dig(:pco, :app_id)
+        app_secret = Rails.application.credentials.dig(:pco, :app_secret)
+
+        request = Net::HTTP::Delete.new(uri.request_uri)
+        request["Authorization"] = "Basic " + Base64.strict_encode64("#{app_id}:#{app_secret}")
+        request["Content-Type"] = "application/json"
+        http.request(request)
+      end
+    end
 
     def post_membership_to_planning_center(group_id, person_id)
       uri = URI.parse("https://api.planningcenteronline.com/groups/v2/groups/#{group_id}/memberships?include=#{person_id}")

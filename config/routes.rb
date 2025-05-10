@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     get "person", to: "pco#get_person_by_id"
 
     get "add", to: "pco#add_membership"
+    get "remove", to: "pco#remove_membership"
   end
 
   # Health check
